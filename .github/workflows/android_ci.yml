@@ -27,10 +27,6 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Decrypt keystore
-        run: |
-          openssl aes-256-cbc -K ${{ secrets.ENCRYPTED_KEYSTORE_KEY }} -iv ${{ secrets.ENCRYPTED_KEYSTORE_IV }} -in buildKey.enc -out buildKey.jks -d
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -38,20 +34,12 @@ jobs:
         uses: gradle/gradle-build-action@v2.4.2
         with:
           arguments: assembleDebug
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Build release apk
         uses: gradle/gradle-build-action@v2.4.2
         with:
           arguments: assembleRelease
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-
+        
       - name: Print version name
         run: |
           APK_NAME="LeafIDE-$(./gradlew -q printVersionName)"
